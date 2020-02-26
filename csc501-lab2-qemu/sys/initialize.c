@@ -13,6 +13,7 @@
 #include <q.h>
 #include <io.h>
 #include <stdio.h>
+#include <lock.h>
 
 /*#define DETAIL */
 #define HOLESIZE	(600)	
@@ -39,6 +40,10 @@ struct	mblock	memlist;	/* list of free memory blocks		*/
 #ifdef	Ntty
 struct  tty     tty[Ntty];	/* SLU buffers and mode control		*/
 #endif
+// lab2
+int	nextlock;
+struct lentry locks[NLOCKS];
+// lab2
 
 /* active system status */
 int	numproc;		/* number of live user processes	*/
@@ -128,11 +133,18 @@ LOCAL int sysinit()
 	struct	pentry	*pptr;
 	struct	sentry	*sptr;
 	struct	mblock	*mptr;
+	// lab2
+	struct lentry *lptr;
+	// lab2
 
 	numproc = 0;			/* initialize system variables */
 	nextproc = NPROC-1;
 	nextsem = NSEM-1;
 	nextqueue = NPROC;		/* q[0..NPROC-1] are processes */
+
+	// lab2
+	nextlock = 0;
+	// lab2
 
 	/* initialize free memory list */
 	/* PC version has to pre-allocate 640K-1024K "hole" */
@@ -176,6 +188,16 @@ LOCAL int sysinit()
 		(sptr = &semaph[i])->sstate = SFREE;
 		sptr->sqtail = 1 + (sptr->sqhead = newqueue());
 	}
+
+	// lab2
+	// initialize locks
+	for(i = 0; i < NLOCKS; i++) {
+		(lptr = &locks[i])->lstate = LFREE;
+		lptr->lreaders = 0;
+		lptr->lwriters = 0;
+		lptr->lqtail = 1 + (sptr->lqhead = newqueue());
+	}
+	// lab2
 
 	rdytail = 1 + (rdyhead=newqueue());/* initialize ready list */
 
