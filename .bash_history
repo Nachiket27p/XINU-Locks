@@ -49,3 +49,46 @@ cd
 git add -A
 git commit -m "moved initialization code from initialize.c to linit.c"
 git push origin master
+cd csc501-lab2-qemu/h/
+grep Bool *
+grep noneempty *
+ls
+cd ..
+cd sys/
+grep nonempty *
+cd ..
+cd h/
+grep nonempty *
+cd ..
+cd sys/
+grep getlast *
+grep TRUE *
+cd ..
+cd h/
+grep TRUE *
+grep FALSE *
+cd ..
+cd sys/
+grep RESCHNO *
+cd ..
+cd h/
+grep RESCHNO *
+grep semcnt *
+cd ..
+cd sys/
+grep semcnt *
+grep sreset *
+cd ..
+cd h/
+grep sreset *
+cd ..
+cd compile/
+grep sreset *
+cd ..
+cd sys/
+grep wait *
+CD
+cd
+git add -A
+git commit -m "Implemented lock.c - still incomplete"
+git push origin master

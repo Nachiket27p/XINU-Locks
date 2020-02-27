@@ -23,10 +23,13 @@ int lock(int loc, int type, int priority)
         return(SYSERR);
     }
     
+    // update pcb to that the semaphore is requested by the process
+    pptr = &proctab[currpid];
+    pptr->lockTrack[loc] = LUSI;
+
     // If there is a write lock than put process into appropriate queue
     // if there are readers currently reading than the writer has to wait
     if(lptr->lWriters <= 0 || (type == WRITE && lptr->lReaders < NPROC)) {
-        pptr = &proctab[currpid];
         pptr->pstate = PRWAIT;
         if(type == WRITE) {
             lptr->lWriters--;

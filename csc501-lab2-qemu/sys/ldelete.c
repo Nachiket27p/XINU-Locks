@@ -25,7 +25,7 @@ int ldelete(int loc)
     if (nonempty(lptr->rQHead)) {
 		while( (pid=getfirst(lptr->rQHead)) != EMPTY)
 		{
-		    proctab[pid].lockDel[loc] = TRUE;
+		    proctab[pid].lockTrack[loc] = TRUE;
 		    ready(pid,RESCHNO);
 		}
 		//resched();
@@ -35,7 +35,7 @@ int ldelete(int loc)
     if(nonempty(lptr->wQHead)) {
         while( (pid=getfirst(lptr->wQHead)) != EMPTY)
 		{
-		    proctab[pid].lockDel[loc] = TRUE;
+		    proctab[pid].lockTrack[loc] = LDEL;
 		    ready(pid,RESCHNO);
 		}
         //resched();
