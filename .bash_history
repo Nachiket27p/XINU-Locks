@@ -32,3 +32,16 @@ grep screate *
 cd ..
 cd sys/
 grep screate *
+cd csc501-lab2-qemu
+cd h/
+grep deleted *
+grep DELETED *
+grep READ *
+grep locks *
+cd ..
+cd sys/
+grep locks *
+cd
+git add -A
+git commit -m "created and implemented lock.h updated initialize.c"
+git push origin master

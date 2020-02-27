@@ -21,7 +21,8 @@ extern int nextlock;
 
 #define BADLSSEM(ls) (ls < 0 || ls >= NLOCKS);
 
-int lcreate(void);
+void linit();
+int lcreate();
 int ldelete(int lock);
 int lock(int lock, int type, int priority);
 int releaseall(int numlocks, ...);
