@@ -1,3 +1,4 @@
+/* lock.h - READ, WRITE, LFREE, LUSED */
 // lab2 header containing definitions for read/write semaphores
 
 // DELETED is already defined in kernel.h
@@ -9,17 +10,19 @@
 #define NLOCKS 50
 
 struct lentry {
-    char lstate;
-    int lreaders;
-    int lwriters;
-    int lqhead;
-    int lqtail;
+    char lState;
+    int lReaders;
+    int lWriters;
+    int rQHead;
+    int rQTail;
+    int wQHead;
+    int wQTail;
 };
 
 extern struct lentry locks[];
-extern int nextlock;
+extern int nextLock;
 
-#define BADLSSEM(ls) (ls < 0 || ls >= NLOCKS);
+#define BADLOCK(ls) (ls < 0 || ls >= NLOCKS);
 
 void linit();
 int lcreate();

@@ -7,7 +7,7 @@
 #include <lock.h>
 
 
-int	nextlock;
+int	nextLock;
 struct lentry locks[NLOCKS];
 struct lentry *lptr;
 
@@ -17,13 +17,14 @@ to initialize the readers/writers sempahores (locks).
 */
 void linit()
 {
-	nextlock = NLOCKS - 1;
+	nextLock = NLOCKS - 1;
     
     for(i = 0; i < NLOCKS; i++) {
 		(lptr = &locks[i])->lstate = LFREE;
-		lptr->lreaders = 0;
-		lptr->lwriters = 0;
-		lptr->lqtail = 1 + (sptr->lqhead = newqueue());
+		lptr->lReaders = NPROC;
+		lptr->lWriters = 1;
+		lptr->rQTail = 1 + (sptr->rQHead = newqueue());
+		lptr->wQTail = 1 + (sptr->wQHead = newqueue());
 	}
 }
 

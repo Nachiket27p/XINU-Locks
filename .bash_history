@@ -45,3 +45,7 @@ cd
 git add -A
 git commit -m "created and implemented lock.h updated initialize.c"
 git push origin master
+cd
+git add -A
+git commit -m "moved initialization code from initialize.c to linit.c"
+git push origin master

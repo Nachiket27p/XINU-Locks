@@ -60,6 +60,9 @@ struct	pentry	{
 	int	fildes[_NFILE];		/* file - device translation	*/
 	int	ppagedev;		/* pageing dgram device		*/
 	int	pwaitret;
+	/* lab2 */
+	Bool lockDel[NLOCKS]; //keep track of which locks are deleted
+	/* lab2 */
 };
 
 

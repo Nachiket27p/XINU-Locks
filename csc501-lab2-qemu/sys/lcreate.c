@@ -31,11 +31,11 @@ LOCAL int newLock()
     while(i) {
         i--;
 
-        if(nextlock < 0)
-            nextlock = NLOCKS - 1;
+        if(nextLock < 0)
+            nextLock = NLOCKS - 1;
 
-        if(locks[loc].lstate == LFREE || locks[loc].lstate == DELETED) {
-            locks[loc].lstate = LUSED;
+        if(locks[loc].lState == LFREE || locks[loc].lState == DELETED) {
+            locks[loc].lState = LUSED;
             return(loc);
         }
     }
