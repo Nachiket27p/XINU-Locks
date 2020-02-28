@@ -62,6 +62,7 @@ struct	pentry	{
 	int	pwaitret;
 	/* lab2 */
 	char lockTrack[NLOCKS]; //keep track of which locks are deleted
+	unsigned long lockTime[NLOCKS]; // keeps track of when the lock was acquired
 	/* lab2 */
 };
 

@@ -36,11 +36,13 @@ int lock(int loc, int type, int priority)
         return(SYSERR);
     }
 
+    unsigned long currTime = ctr1000;
     if(type == WRITE) { // write lock
         lptr->lWriters--;
         pptr->lockTrack[loc] = WRITE;// update proctable
         //if(lptr->lWriters < 0 || lptr->lReaders < NPROC) {
         if(lptr->lState == WRITE || lptr->lState == READ)
+            pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
             insert(currpid, lptr->wQHead, priority);
             pptr->pstate = PRWAIT;
             resched();
@@ -57,6 +59,7 @@ int lock(int loc, int type, int priority)
         pptr->lockTrack[loc] = READ;// update proctable
         //if(lptr->lWriters <= 0) {
         if(lptr->lState == WRITE || (lptr->lState == READ && lastkey(lptr->wQTail) >= priority))
+            pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
             insert(currpid, lptr->rQHead, priority);
             pptr->pstate = PRWAIT;
             resched();

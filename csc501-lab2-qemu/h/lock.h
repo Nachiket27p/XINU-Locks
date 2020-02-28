@@ -6,6 +6,7 @@
 #define WRITE '\12'
 #define LFREE '\13'
 #define LUSED '\14'
+#define LNOUSE 0
 
 #define NLOCKS 50
 
@@ -21,6 +22,7 @@ struct lentry {
 
 extern struct lentry locks[];
 extern int nextLock;
+extern unsigned long ctr1000;
 
 #define BADLOCK(ls) (ls < 0 || ls >= NLOCKS);
 

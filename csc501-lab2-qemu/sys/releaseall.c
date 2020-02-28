@@ -36,6 +36,16 @@ int releaseall(int numlocks, ...)
         }
         //update tracker to indicate the lock is no longer used by this process
         pptr->lockTrack[args] = LNOUSE;
+        
+        // if ther is a process waiting to acquire the lock a reader or a writer
+        // put that process into the ready queue.
+        /* CRITERIA FOR RELEASING PROCESS
+            > Lock should be given to the process which has the highest priosity
+            > If a reader and a writer have the same priosity:
+                # Award the process which has been waiting waiting the longest
+                    uese the lockTime[] in the PCB of the process to determine this
+        */
+        //TODO
     }
 
     disable(ps);
