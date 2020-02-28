@@ -21,8 +21,18 @@ int releaseall(int numlocks, ...)
     release all the semaphores and check if the requested releases
     are semaphores associated with this process
     */
+    int relRtn = OK;
+
     for(args = 0; args < numlocks; args++) {
-        //TODO
+        if(proctab[currpid].lockTrack[args] == READ) {
+            lptr = &locks[args];
+            //TODO
+        } else if(proctab[currpid].lockTrack[args] == WRITE) {
+            lptr = &locks[args];
+            //TODO
+        } else {
+            relRtn = SYSERR;
+        }
     }
     
 }

@@ -23,29 +23,35 @@ int lock(int loc, int type, int priority)
         return(SYSERR);
     }
     
-    // update pcb to that the semaphore is requested by the process
+    //!!!!!!!!!!!!!!!!!!!!!! INCOMPLETE !!!!!!!!!!!!!!!!!!!
+    // still need to obtain clarification on how lock should
+    // behave based on if a read or write lock is already acquired.
+    //!!!!!!!!!!!!!!!!!!!!!! INCOMPLETE !!!!!!!!!!!!!!!!!!!
     pptr = &proctab[currpid];
-    pptr->lockTrack[loc] = LUSI;
-
-    // If there is a write lock than put process into appropriate queue
-    // if there are readers currently reading than the writer has to wait
-    if(lptr->lWriters <= 0 || (type == WRITE && lptr->lReaders < NPROC)) {
-        pptr->pstate = PRWAIT;
-        if(type == WRITE) {
-            lptr->lWriters--;
+    if(type == WRITE) { // write lock
+        lptr->lWriters--;
+        pptr->lockTrack[loc] = WRITE;// update proctable
+        //if(lptr->lWriters < 0 || lptr->lReaders < NPROC) {
+        if(lptr->lState == WRITE || lptr->lState == READ)
             insert(currpid, lptr->wQHead, priority);
+            pptr->pstate = PRWAIT;
+            resched();
         } else {
-            lptr->lReaders--;
-            insert(currpid, lptr->rQHead, priority);
+            lptr->lState = WRITE;
         }
-        resched();
-    } else { // no writers --> check if process wants a write or read lock
-        if(type == WRITE) {
-            lptr->lWriters--;
+    } else { // read lock
+        lptr->lReaders--;
+        pptr->lockTrack[loc] = READ;// update proctable
+        //if(lptr->lWriters <= 0) {
+        if(lptr->lState == READ && lastkey(lptr->wQTail) > priority)
+            insert(currpid, lptr->rQHead, priority);
+            pptr->pstate = PRWAIT;
+            resched();
         } else {
-            lptr->lReaders--;
+            lptr->lState = READ;
         }
     }
+    restore(ps);
 
     restore(ps);
     return(OK);

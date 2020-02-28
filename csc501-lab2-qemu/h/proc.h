@@ -38,11 +38,6 @@
 
 #define	isbadpid(x)	(x<=0 || x>=NPROC)
 
-// lab2
-#define LDEL -1
-#define LUSI 1
-// lab2
-
 /* process table entry */
 
 struct	pentry	{
@@ -66,7 +61,7 @@ struct	pentry	{
 	int	ppagedev;		/* pageing dgram device		*/
 	int	pwaitret;
 	/* lab2 */
-	Bool lockTrack[NLOCKS]; //keep track of which locks are deleted
+	char lockTrack[NLOCKS]; //keep track of which locks are deleted
 	/* lab2 */
 };
 
