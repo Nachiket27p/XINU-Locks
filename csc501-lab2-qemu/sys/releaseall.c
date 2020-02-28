@@ -4,6 +4,7 @@ int releaseall(int numlocks, ...)
 {
     STATWORD ps;
 	register struct	lentry	*lptr;
+    struct	pentry	*pptr;
 
     disable(ps);
 
@@ -22,17 +23,21 @@ int releaseall(int numlocks, ...)
     are semaphores associated with this process
     */
     int relRtn = OK;
-
+    
     for(args = 0; args < numlocks; args++) {
-        if(proctab[currpid].lockTrack[args] == READ) {
-            lptr = &locks[args];
-            //TODO
-        } else if(proctab[currpid].lockTrack[args] == WRITE) {
-            lptr = &locks[args];
-            //TODO
+        lptr = &locks[args];
+        pptr = &proctab[currpid];
+        if(pptr->lockTrack[args] == READ) {
+            lptr->lReaders++;
+        } else if(pptr->lockTrack[args] == WRITE) {
+            lptr->lWriters++;
         } else {
             relRtn = SYSERR;
         }
+        //update tracker to indicate the lock is no longer used by this process
+        pptr->lockTrack[args] = LNOUSE;
     }
-    
+
+    disable(ps);
+    return(relRtn);
 }

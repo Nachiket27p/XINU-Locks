@@ -92,3 +92,19 @@ cd
 git add -A
 git commit -m "Implemented lock.c - still incomplete"
 git push origin master
+cd
+git add -A
+git commit -m "started releaseall.c implementation"
+git push origin master
+cd csc501-lab2-qemu/h/
+grep DELETED *
+grep FREE *
+cd ..
+cd sys/
+grep FREE *
+cd ..
+cd h
+cd
+git add -A
+git commit -m "changed lock policy on lock.c"
+git push origin master
