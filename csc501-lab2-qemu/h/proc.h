@@ -16,6 +16,9 @@
 #define	FDFREE		-1		/* free file descriptor */
 #define PRFREE		'\002'          /* process slot is free         */
 
+#ifndef	NLOCKS				/* set the number of locks	*/
+#define	NLOCKS		50		/*  allowed if not already done	*/
+#endif
 
 /* process state constants */
 

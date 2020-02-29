@@ -4,6 +4,7 @@
 #include <kernel.h>
 #include <proc.h>
 #include <q.h>
+#include <stdio.h>
 #include <lock.h>
 
 int lock(int loc, int type, int priority)
@@ -41,7 +42,7 @@ int lock(int loc, int type, int priority)
         lptr->lWriters--;
         pptr->lockTrack[loc] = WRITE;// update proctable
         //if(lptr->lWriters < 0 || lptr->lReaders < NPROC) {
-        if(lptr->lState == WRITE || lptr->lState == READ)
+        if(lptr->lState == WRITE || lptr->lState == READ) {
             pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
             insert(currpid, lptr->wQHead, priority);
             pptr->pstate = PRWAIT;
@@ -58,7 +59,7 @@ int lock(int loc, int type, int priority)
         lptr->lReaders--;
         pptr->lockTrack[loc] = READ;// update proctable
         //if(lptr->lWriters <= 0) {
-        if(lptr->lState == WRITE || (lptr->lState == READ && lastkey(lptr->wQTail) >= priority))
+        if(lptr->lState == WRITE || (lptr->lState == READ && lastkey(lptr->wQTail) >= priority)) {
             pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
             insert(currpid, lptr->rQHead, priority);
             pptr->pstate = PRWAIT;

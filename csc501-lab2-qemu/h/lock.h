@@ -24,7 +24,7 @@ extern struct lentry locks[];
 extern int nextLock;
 extern unsigned long ctr1000;
 
-#define BADLOCK(ls) (ls < 0 || ls >= NLOCKS);
+#define BADLOCK(ls) (ls < 0 || ls >= NLOCKS)
 
 void linit();
 int lcreate();

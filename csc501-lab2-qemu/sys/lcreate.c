@@ -2,7 +2,10 @@
 #include <kernel.h>
 #include <proc.h>
 #include <q.h>
+#include <stdio.h>
 #include <lock.h>
+
+LOCAL int newLock();
 
 int lcreate()
 {
@@ -11,10 +14,11 @@ int lcreate()
 
 	disable(ps);
 
-    if(count < 0 || (loc = newLock() == SYSERR ) {
-        restore(ps);
-        return(SYSERR);
-    }
+    // if((loc = newLock()) == SYSERR ) {
+    //     restore(ps);
+    //     return(SYSERR);
+    // }
+    loc = newLock();
 
     restore(ps);
     return(loc);
@@ -30,6 +34,7 @@ LOCAL int newLock()
     int i = NLOCKS;
     while(i) {
         i--;
+        loc = nextLock--;
 
         if(nextLock < 0)
             nextLock = NLOCKS - 1;

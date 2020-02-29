@@ -4,6 +4,7 @@
 #include <kernel.h>
 #include <proc.h>
 #include <stdio.h>
+#include <lock.h>
 
 /*------------------------------------------------------------------------
  *  main  --  user main program
@@ -16,5 +17,8 @@ int main()
         /* The hook to shutdown QEMU for process-like execution of XINU.
          * This API call terminates the QEMU process.
          */
+        
+        //releaseall(3, 10, 15, 20);
+
         shutdown();
 }

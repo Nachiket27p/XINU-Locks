@@ -108,3 +108,43 @@ cd
 git add -A
 git commit -m "changed lock policy on lock.c"
 git push origin master
+cd
+git add -A
+git commit -m "implemented releaseall.c - still need to finalize"
+git push origin master
+cd csc501-lab2-qemu/h/
+grep ctr1000 *
+cd ..
+cd sys/
+grep ctr1000 *
+cd..
+clear
+git add -A
+cd
+git add -A
+git commit -m "partially implemented lock timing structure"
+git push origin master
+cd csc501-lab2-qemu
+cd compile/
+make depend
+make
+make depend
+make
+make depend
+make
+make depend && make
+make clean
+clear
+make depend && make && make run
+q
+make depend && make && make run
+q
+make depend && make && make run
+cd ..
+cd sys/
+cd ..
+cd h/
+grep SYSERR *
+cd ..
+cd compile/
+make depend && make && make run
