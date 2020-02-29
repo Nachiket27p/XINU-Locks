@@ -24,11 +24,6 @@ int lock(int loc, int type, int priority)
         return(SYSERR);
     }
     
-
-    //!!!!!!!!!!!!!!!!!!!!!! INCOMPLETE !!!!!!!!!!!!!!!!!!!
-    // still need to obtain clarification on how lock should
-    // behave based on if a read or write lock is already acquired.
-    //!!!!!!!!!!!!!!!!!!!!!! INCOMPLETE !!!!!!!!!!!!!!!!!!!
     pptr = &proctab[currpid];
     // check if the lock has been deleted by another process
     if(pptr->lockTrack[loc] == DELETED) {

@@ -18,7 +18,6 @@ int main()
          * This API call terminates the QEMU process.
          */
         
-        //releaseall(3, 10, 15, 20);
 
         shutdown();
 }

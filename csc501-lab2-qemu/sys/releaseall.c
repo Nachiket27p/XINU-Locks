@@ -12,7 +12,7 @@ int releaseall(int numlocks, ...)
     STATWORD ps;
 	register struct	lentry	*lptr;
     struct	pentry	*pptr;
-    //kprintf("%d\n", numlocks);
+    
     disable(ps);
 
     // create array to store variable arguments
@@ -21,10 +21,8 @@ int releaseall(int numlocks, ...)
     int args = 0;
     while(args < numlocks) {
         lockArgs[args] = *((&numlocks)+ args + 1);// save the stack variable argument
-        //kprintf("%d\t", lockArgs[args]);
         args++;
     }
-    //kprintf("\n");
 
     /* 
     release all the semaphores and check if the requested releases
