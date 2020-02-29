@@ -19,7 +19,8 @@ void linit()
 	nextLock = NLOCKS - 1;
     int i;
     for(i = 0; i < NLOCKS; i++) {
-		(lptr = &locks[i])->lState = LFREE;
+		lptr = &locks[i];
+		lptr->lState = LFREE;
 		lptr->lReaders = NPROC;
 		lptr->lWriters = 1;
 		lptr->rQTail = 1 + (lptr->rQHead = newqueue());

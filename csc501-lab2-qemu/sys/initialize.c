@@ -71,7 +71,7 @@ char	vers[100];		/* Xinu version printed at startup	*/
 int nulluser()				/* babysit CPU when no one home */
 {
 //	int userpid;
-
+	
 	console_dev = SERIAL0;
 
 	initevec();
