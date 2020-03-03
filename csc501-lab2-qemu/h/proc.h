@@ -63,10 +63,11 @@ struct	pentry	{
 	int	fildes[_NFILE];		/* file - device translation	*/
 	int	ppagedev;		/* pageing dgram device		*/
 	int	pwaitret;
-	/* lab2 */
+	/* pa2 */
+	int pinh;
 	char lockTrack[NLOCKS]; //keep track of which locks are deleted
 	unsigned long lockTime[NLOCKS]; // keeps track of when the lock was acquired
-	/* lab2 */
+	/* pa2 */
 };
 
 

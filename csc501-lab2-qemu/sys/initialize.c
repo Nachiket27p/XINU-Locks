@@ -178,10 +178,10 @@ LOCAL int sysinit()
 		sptr->sqtail = 1 + (sptr->sqhead = newqueue());
 	}
 
-	/* lab2 */
+	/* pa2 */
 	// initialize readers/writers semaphores
 	linit();
-	/* lab2 */
+	/* pa2 */
 
 	rdytail = 1 + (rdyhead=newqueue());/* initialize ready list */
 

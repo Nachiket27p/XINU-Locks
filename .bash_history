@@ -148,3 +148,56 @@ grep SYSERR *
 cd ..
 cd compile/
 make depend && make && make run
+git add -A
+git commit -m "XINU OS not creating main process"
+git push origin master
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+cd ..
+cd sys/
+grep "qent q" *
+grep qent *
+grep NQENT *
+cd ..
+cd h/
+grep NQENT *
+cd ..
+cd compile/
+make depend && make && make run
+cd ..
+cd sys/
+grep NQENT *
+cd ..
+cd h/
+grep NQENT *
+cd ..
+cd compile/
+make depend && make && make run
+git add -A
+cd
+git add -A
+git commit -m "Fixed XINU by increasing q[] size to accomidate extra spots for locks"
+git push origin master
+cd csc501-lab2-qemu/com
+cd ..
+cd compile/
+make depend && make && make run
+make clean
+make depend
+cd ..
+cd h/
+grep nextqueue *
+cd ..
+cd sys/
+frep nextqueue *
+grep nextqueue *
+cd
+git add -A
+git commit -m "tested variable arguments in releaseall.c- WORKING"
+cd csc501-lab2-qemu/compile/
+make clean
+cd
+git commit -m "tested variable arguments in releaseall.c- WORKING"
+git push origin master
+cd csc501-lab2-qemu/sys/
+grep disable *

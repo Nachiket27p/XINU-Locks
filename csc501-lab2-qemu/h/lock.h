@@ -1,5 +1,5 @@
 /* lock.h - READ, WRITE, LFREE, LUSED */
-// lab2 header containing definitions for read/write semaphores
+// pa2 header containing definitions for read/write semaphores
 
 // DELETED is already defined in kernel.h
 #define READ '\11'
@@ -10,6 +10,8 @@
 
 #define NLOCKS 50
 
+typedef	unsigned long long	u_llong;
+
 struct lentry {
     char lState;
     int lReaders;
@@ -18,6 +20,8 @@ struct lentry {
     int rQTail;
     int wQHead;
     int wQTail;
+    int highPrio;
+    u_llong;
 };
 
 extern struct lentry locks[];
@@ -31,3 +35,4 @@ int lcreate();
 int ldelete(int lock);
 int lock(int lock, int type, int priority);
 int releaseall(int numlocks, ...);
+
