@@ -28,24 +28,22 @@ int lock(int loc, int type, int priority)
     
     pptr = &proctab[currpid];
     // check if the lock has been deleted by another process
-    if(pptr->lockTrack[loc] == DELETED) {
-        pptr->lockTrack[loc] = LNOUSE;
+    if((pptr->lDeleted >> loc) & 1) {
         restore(ps);
         return(SYSERR);
     }
 
-    unsigned long currTime = ctr1000;
-    int k;
+    u_long currTime = ctr1000;
+
     if(type == WRITE) { // write lock
         lptr->lWriters--;
-        pptr->lockTrack[loc] = WRITE;// update proctable
-        //if(lptr->lWriters < 0 || lptr->lReaders < NPROC) {
         if(lptr->lState == WRITE || lptr->lState == READ) {
             pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
             insert(currpid, lptr->wQHead, priority);
             pptr->pstate = PRWAIT;
             // keep track of the highest priority process waiting in the queue
-            lptr->highPrio = pptr->pprio > lptr->highPrio ? pptr->pprio : pptr->pprio;
+            if(pptr->pprio > lptr->highPrio)
+                lptr->highPrio = pptr->pprio;
             // update the PCB of lock whose wait queue this process is waiting in
             pptr->lBlocked = loc;
             // check if the process currently holding the lock has a lower priority than
@@ -61,14 +59,13 @@ int lock(int loc, int type, int priority)
         }
     } else { // read lock
         lptr->lReaders--;
-        pptr->lockTrack[loc] = READ;// update proctable
-        //if(lptr->lWriters <= 0) {
         if(lptr->lState == WRITE || (lptr->lState == READ && lastkey(lptr->wQTail) >= priority)) {
             pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
             insert(currpid, lptr->rQHead, priority);
             pptr->pstate = PRWAIT;
             // keep track of the highest priority process waiting in the queue
-            lptr->highPrio = pptr->pprio > lptr->highPrio ? pptr->pprio : pptr->pprio;
+            if(pptr->pprio > lptr->highPrio)
+                lptr->highPrio = pptr->pprio;
             // update the PCB of lock whose wait queue this process is waiting in
             pptr->lBlocked = loc;
             // check if the process currently holding the lock has a lower priority than

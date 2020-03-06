@@ -53,13 +53,12 @@ int releaseall(int numlocks, ...)
             continue;// skip to the next lock
         }
 
-        // remove this lock from the lock tracker by resetting the bit mask for the 
+        // remove this lock from the lock's tracker by resetting the bit mask for the 
         // appropriate position.
         lptr->lTracker &= (!(1 << currpid));
 
         //update tracker to indicate the lock is no longer used by this process
         pptr->lHeld &= (!(1 << locarg));
-        pptr->lockTrack[locarg] = LNOUSE;
         
         // if the lock is valid to be released
         //if(locStat == READ || locStat == WRITE) {

@@ -30,7 +30,7 @@ int main()
     int a = 10;
     int b = 5;
 
-    int b = b < a ? : a;
+    b = b < a ? b : a;
 
     kprintf("%d\n", b);
     

@@ -10,8 +10,6 @@
 
 #define NLOCKS 50
 
-typedef	unsigned long long	u_llong;
-
 struct lentry {
     char lState;
     int lReaders;

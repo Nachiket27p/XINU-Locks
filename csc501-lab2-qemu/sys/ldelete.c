@@ -27,7 +27,7 @@ int ldelete(int loc)
 		while( (pid=getfirst(lptr->rQHead)) != EMPTY)
 		{
             // set mask in pcb that this lock was deleted
-            proctab[pid].ldelete &= (1 << loc); 
+            proctab[pid].lDeleted &= (1 << loc); 
 		    ready(pid,RESCHNO);
 		}
 		resched();
@@ -38,7 +38,7 @@ int ldelete(int loc)
         while( (pid=getfirst(lptr->wQHead)) != EMPTY)
 		{
 		    // set mask in pcb that this lock was deleted
-            proctab[pid].ldelete &= (1 << loc);
+            proctab[pid].lDeleted &= (1 << loc);
 		    ready(pid,RESCHNO);
 		}
         resched();

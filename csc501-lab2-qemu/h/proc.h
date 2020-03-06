@@ -66,10 +66,9 @@ struct	pentry	{
 	/* pa2 */
 	int pinh;
 	int lBlocked;
-	//char lockTrack[NLOCKS]; //keep track of which locks this process has acquired
 	u_llong lDeleted;
 	u_llong lHeld;
-	unsigned long lockTime[NLOCKS]; // keeps track of when the lock was acquired
+	u_long lockTime[NLOCKS]; // keeps track of when the lock was acquired
 	/* pa2 */
 };
 

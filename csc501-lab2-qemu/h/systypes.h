@@ -20,6 +20,9 @@ typedef	unsigned short	u_short;
 typedef	unsigned int	u_int;
 typedef	unsigned long	u_long;
 typedef	unsigned short	ushort;		/* System V compatibility */
+//pa2
+typedef	unsigned long long	u_llong;
+//pa2
 
 #ifdef vax
 typedef	struct	_physadr { int r[1]; } *physadr;
