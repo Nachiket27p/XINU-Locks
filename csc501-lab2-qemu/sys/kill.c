@@ -8,6 +8,7 @@
 #include <io.h>
 #include <q.h>
 #include <stdio.h>
+#include <lock.h>
 
 /*------------------------------------------------------------------------
  * kill  --  kill a process and remove it from the system
@@ -43,19 +44,28 @@ SYSCALL kill(int pid)
 	switch (pptr->pstate) {
 
 	case PRCURR:	pptr->pstate = PRFREE;	/* suicide */
-			resched();
+		// pa2
+		// release all the locks this process was holding
+		int templok;
+		for(templok = 0; templok < NLOCKS; templok++) {
+			//TODO
+		}
+		// pa2
+		resched();
 
 	case PRWAIT:	semaph[pptr->psem].semcnt++;
 
 	case PRREADY:	dequeue(pid);
-			pptr->pstate = PRFREE;
-			break;
+		pptr->pstate = PRFREE;
+		break;
 
 	case PRSLEEP:
 	case PRTRECV:	unsleep(pid);
-						/* fall through	*/
+					/* fall through	*/
 	default:	pptr->pstate = PRFREE;
 	}
+
+	
 	restore(ps);
 	return(OK);
 }

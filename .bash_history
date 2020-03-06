@@ -201,3 +201,36 @@ git commit -m "tested variable arguments in releaseall.c- WORKING"
 git push origin master
 cd csc501-lab2-qemu/sys/
 grep disable *
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+cd ..
+cd lib/
+ls
+cd libxc
+ls
+grep pow *
+grep math *
+cd ..
+cd comp
+cd ..
+cd compile/
+make depend && make && make run
+cd ..
+cd h/
+grep unsigned *
+cd ..
+cd compile/
+make depend && make && make run
+cd ..
+cd h/
+grep ULL *
+grep "unsigned long long" *
+cd ..
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+cd
+git add -A
+git commit -m "declared extra variables in lentry struct and pcb struct for priority inheritance"
+git push origin master
+cd csc501-lab2-qemu/compile/
+make depend && make && make run

@@ -21,7 +21,7 @@ struct lentry {
     int wQHead;
     int wQTail;
     int highPrio;
-    u_llong;
+    u_llong lTracker;
 };
 
 extern struct lentry locks[];

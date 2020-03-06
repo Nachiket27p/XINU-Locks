@@ -26,20 +26,22 @@ int ldelete(int loc)
     if (nonempty(lptr->rQHead)) {
 		while( (pid=getfirst(lptr->rQHead)) != EMPTY)
 		{
-		    proctab[pid].lockTrack[loc] = DELETED;
+            // set mask in pcb that this lock was deleted
+            proctab[pid].ldelete &= (1 << loc); 
 		    ready(pid,RESCHNO);
 		}
-		//resched();
+		resched();
 	}
     
     // check the writers queue for waiting processes
     if(nonempty(lptr->wQHead)) {
         while( (pid=getfirst(lptr->wQHead)) != EMPTY)
 		{
-		    proctab[pid].lockTrack[loc] = DELETED;
+		    // set mask in pcb that this lock was deleted
+            proctab[pid].ldelete &= (1 << loc);
 		    ready(pid,RESCHNO);
 		}
-        //resched();
+        resched();
     }
     
     restore(ps);
