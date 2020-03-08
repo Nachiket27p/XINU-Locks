@@ -53,7 +53,7 @@ SYSCALL kill(int pid)
 				}
 			}
 			//pptr->lROrW = 0;
-			pptr->pinh = 0;
+			pptr->pOrig = 0;
 			pptr->lBlocked = -1;
 			pptr->lDeleted = 0;
 			pptr->lHeld = 0;
@@ -70,7 +70,7 @@ SYSCALL kill(int pid)
 			int wlk = lastkey(locks[pptr->lBlocked].wQTail);
 			locks[pptr->lBlocked].highPrio = rlk > wlk ? rlk : wlk;
 			//pptr->lROrW = 0;
-			pptr->pinh = 0;
+			pptr->pOrig = 0;
 			pptr->lBlocked = -1;
 			pptr->lDeleted = 0;
 			pptr->lHeld = 0;
@@ -84,7 +84,7 @@ SYSCALL kill(int pid)
 					releaseall(1, templok);
 				}
 			}
-			pptr->pinh = 0;
+			pptr->pOrig = 0;
 			pptr->lBlocked = -1;
 			pptr->lDeleted = 0;
 			pptr->lHeld = 0;

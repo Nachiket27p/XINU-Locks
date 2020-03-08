@@ -65,7 +65,7 @@ struct	pentry	{
 	int	pwaitret;
 	/* pa2 */
 	//int lROrW;
-	int pinh;
+	int pOrig;
 	int lBlocked;
 	u_llong lDeleted;
 	u_llong lHeld;

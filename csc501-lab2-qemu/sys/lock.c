@@ -28,7 +28,7 @@ int lock(int loc, int type, int priority)
     
     pptr = &proctab[currpid];
     // check if the lock has been deleted by another process
-    if((pptr->lDeleted >> loc) & 1) {
+    if((pptr->lDeleted >> loc) & (u_llong)1) {
         restore(ps);
         return(SYSERR);
     }
@@ -36,7 +36,7 @@ int lock(int loc, int type, int priority)
     u_long currTime = ctr1000;
 
     if(type == WRITE) { // write lock
-        lptr->lWriters--;
+        //lptr->lWriters--;
         if(lptr->lState == WRITE || lptr->lState == READ) {
             pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
             insert(currpid, lptr->wQHead, priority);
@@ -54,12 +54,15 @@ int lock(int loc, int type, int priority)
             resched();
             // !!! This is where the process will return from resched !!!
         } else {
-            lptr->lTracker &= (1 << currpid);
-            pptr->lHeld &= (1 << loc);// set mask in pcb to indicate this process is holding the lock
+            lptr->lWriters--;
+            //kprintf("r cpid %d\n", currpid);
+            lptr->lTracker |= ((u_llong)1 << currpid);
+            //kprintf("w lT: %X\n", lptr->lTracker);
+            pptr->lHeld |= ((u_llong)1 << loc);// set mask in pcb to indicate this process is holding the lock
             lptr->lState = WRITE;
         }
     } else { // read lock
-        lptr->lReaders--;
+        //lptr->lReaders--;
         if(lptr->lState == WRITE || (lptr->lState == READ && lastkey(lptr->wQTail) >= priority)) {
             pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
             insert(currpid, lptr->rQHead, priority);
@@ -79,13 +82,16 @@ int lock(int loc, int type, int priority)
             // update the PCB to indicate that this process is not longer blocked by any lock
             pptr->lBlocked = -1;
         } else {
-            lptr->lTracker &= (1 << currpid);
-            pptr->lHeld &= (1 << loc);// set mask in pcb to indicate this process is holding the lock
+            lptr->lReaders--;
+            //kprintf("r cpid %d\n", currpid);
+            lptr->lTracker |= ((u_llong)1 << currpid);
+            //kprintf("r lT: %X\n", lptr->lTracker);
+            pptr->lHeld |= ((u_llong)1 << loc);// set mask in pcb to indicate this process is holding the lock
             lptr->lState = READ;
         }
     }
     // this is where the process that was put on wait will return from resched
-    if((pptr->lDeleted >> loc) & 1) {
+    if((pptr->lDeleted >> loc) & (u_llong)1) {
         restore(ps);
         return(DELETED);
     }
@@ -96,15 +102,21 @@ int lock(int loc, int type, int priority)
 
 void prioInheritance(int cpid)
 {
+    //kprintf("Here\n");
     struct	pentry	*tmppptr = &proctab[cpid];
     struct	lentry	*tmplptr = &locks[tmppptr->lBlocked];
     int k;
     // k starts from 1 because '0' would mean the null process is holding the lock
     // which is not possible
     for(k = 1; k < NPROC; k++) {
-        if(((tmplptr->lTracker >> k) & 1 ) && 
-                    (proctab[k].pinh < tmppptr->pprio || proctab[k].pprio < tmppptr->pprio)) {            
-            proctab[k].pinh = tmppptr->pprio;
+        if(((tmplptr->lTracker >> k) & (u_llong)1) && (proctab[k].pprio < tmppptr->pprio)) {            
+            //kprintf("%d\n", k);
+            // save the original priority only if it has not been saved before
+            if(proctab[k].pOrig == 0) {
+                proctab[k].pOrig = proctab[k].pprio;
+            }
+            
+            proctab[k].pprio = tmppptr->pprio;
             
             // now if the process with pid k is waiting on a lock than than
             // perform the same operation using recursion to perform priority

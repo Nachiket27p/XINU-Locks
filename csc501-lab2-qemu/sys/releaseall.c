@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <lock.h>
 
+void newPrioHigh(struct lentry *tlptr);
+
 int releaseall(int numlocks, ...)
 {
     STATWORD ps;
@@ -35,17 +37,18 @@ int releaseall(int numlocks, ...)
     int rwt, wwt;
     unsigned int cTime;
     int locarg;
+    pptr = &proctab[currpid];
     for(args = 0; args < numlocks; args++) {
-        locarg = lockArgs[args];// get the lock descriptor
-
+        // get the lock descriptor
+        locarg = lockArgs[args];
+        // get the pointer to the lock
         lptr = &locks[locarg];
-        pptr = &proctab[currpid];
         //locStat = pptr->lockTrack[locarg];
         locStat = lptr->lState;
-
         
         if(locStat == READ) {
             lptr->lReaders++;
+            //kprintf("\n#r: %d\n", lptr->lReaders);
         } else if(locStat == WRITE) {
             lptr->lWriters++;
         } else {
@@ -54,17 +57,15 @@ int releaseall(int numlocks, ...)
         }
 
         // remove the inheirted priority for this process
-        pptr->pinh = 0;
+        //pptr->pinh = 0;
 
         // remove this lock from the lock's tracker by resetting the bit mask for the 
         // appropriate position.
-        lptr->lTracker &= (!(1 << currpid));
+        lptr->lTracker &= (!((u_llong)1 << currpid));
 
         //update tracker to indicate the lock is no longer used by this process
-        pptr->lHeld &= (!(1 << locarg));
+        pptr->lHeld &= (!((u_llong)1 << locarg));
         
-        // if the lock is valid to be released
-        //if(locStat == READ || locStat == WRITE) {
         // get the current time
         cTime = ctr1000;
         // if ther is a process waiting to acquire the lock a reader or a writer
@@ -80,6 +81,7 @@ int releaseall(int numlocks, ...)
         if(nonempty(lptr->wQHead))
             wp = lastkey(lptr->wQTail);
 
+        //kprintf("\nTR: %d    TW: %d\n", rp, wp);
         if(rp > wp) {
             lptr->lState = READ;
             // is a reader given the lock let all other readers that have a higher
@@ -89,13 +91,21 @@ int releaseall(int numlocks, ...)
                 ready(getlast(lptr->rQTail), RESCHNO);
                 rp = lastkey(lptr->rQTail);
             }
+            // recalculate new high priority for this lock
+            newPrioHigh(lptr);
             //resched();
-        } else if ((wp > rp) && (lptr->lReaders == NPROC)) {// only give lock to writer if all readers releases the lock
+        }
+        // only give lock to writer if all readers releases the lock
+        else if ((wp > rp) && (lptr->lReaders == NPROC)) {
             lptr->lState = WRITE;
             lptr->lWriters--;
             ready(getlast(lptr->wQTail), RESCHNO);
+            // recalculate new high priority for this lock
+            newPrioHigh(lptr);
             //resched();
-        } else if (!rp && !rp) { // if waiting reader and writer has the same priority choose based on wait time
+        }
+        // if waiting reader and writer has the same priority choose based on wait time
+        else if (rp != 0 && wp != 0 && rp == wp) {
             // get amount of time writer/reader has been waiting for
             rwt = cTime - proctab[q[lptr->rQTail].qprev].lockTime[locarg];
             wwt = cTime - proctab[q[lptr->wQTail].qprev].lockTime[locarg];
@@ -115,9 +125,11 @@ int releaseall(int numlocks, ...)
                 lptr->lWriters--;
                 ready(getlast(lptr->wQTail), RESCHNO);
             }
+            // recalculate new high priority for this lock
+            newPrioHigh(lptr);
             //resched();
         }
-        //}
+        
     }
 
     // reset process priority to max of all processes waiting in the queues of
@@ -127,14 +139,52 @@ int releaseall(int numlocks, ...)
     for(i = 0; i < NLOCKS; i++) {
         //tmploc = pptr->lockTrack[i];
         // check the bitmask lHeld to check which locks this process is holding
-        tmploc = ((pptr->lHeld >> i) & 1);
+        tmploc = ((pptr->lHeld >> i) & (u_llong)1);
         if(tmploc && lptr->highPrio > nphigh) {
             // remember this as the new highest priority
             nphigh = lptr->highPrio;
         }
     }
-    pptr->pinh = nphigh;
+    
+    //pptr->pinh = nphigh;
+
+    // based on the highest priority in the wait queues of all the locks this process is holding
+    // update its priority
+    if(pptr->pOrig < nphigh) {
+        pptr->pprio = nphigh;
+    }
+    // If not than restore this processes original priority
+    else {
+        pptr->pprio = pptr->pOrig;
+        pptr->pOrig = 0;
+    }
+    
 
     restore(ps);
     return(relRtn);
+}
+
+
+void newPrioHigh(struct lentry *tlptr) {
+    int curr = firstid(tlptr->rQHead);
+    int high = 0;
+    //kprintf("%d\n", q[curr].qkey);
+    while(q[curr].qkey != MAXINT) {
+        //kprintf("r\n");
+        if(proctab[curr].pprio > high) {
+            high = proctab[curr].pprio;
+        }
+        curr = q[curr].qnext;
+    }
+
+    curr = firstid(tlptr->wQHead);
+    while(q[curr].qkey != MAXINT) {
+        //kprintf("w\n");
+        if(proctab[curr].pprio > high) {
+            high = proctab[curr].pprio;
+        }
+        curr = q[curr].qnext;
+    }
+
+    tlptr->highPrio = high;
 }
