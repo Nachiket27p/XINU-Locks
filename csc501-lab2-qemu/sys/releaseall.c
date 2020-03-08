@@ -61,7 +61,7 @@ int releaseall(int numlocks, ...)
 
         // remove this lock from the lock's tracker by resetting the bit mask for the 
         // appropriate position.
-        lptr->lTracker &= (!((u_llong)1 << currpid));
+        lptr->pTracker &= (!((u_llong)1 << currpid));
 
         //update tracker to indicate the lock is no longer used by this process
         pptr->lHeld &= (!((u_llong)1 << locarg));
@@ -99,7 +99,12 @@ int releaseall(int numlocks, ...)
         else if ((wp > rp) && (lptr->lReaders == NPROC)) {
             lptr->lState = WRITE;
             lptr->lWriters--;
-            ready(getlast(lptr->wQTail), RESCHNO);
+            // remove the process from the wait queue, change its priority if
+            // ther is a process with a higher process priority waiting in the queues.
+            int rpid = getlast(lptr->wQTail);
+            proctab[rpid].pOrig = proctab[rpid].pprio;
+            proctab[rpid].pprio = lptr->highPrio;
+            ready(rpid, RESCHNO);
             // recalculate new high priority for this lock
             newPrioHigh(lptr);
             //resched();
@@ -168,9 +173,8 @@ int releaseall(int numlocks, ...)
 void newPrioHigh(struct lentry *tlptr) {
     int curr = firstid(tlptr->rQHead);
     int high = 0;
-    //kprintf("%d\n", q[curr].qkey);
+
     while(q[curr].qkey != MAXINT) {
-        //kprintf("r\n");
         if(proctab[curr].pprio > high) {
             high = proctab[curr].pprio;
         }
@@ -179,7 +183,6 @@ void newPrioHigh(struct lentry *tlptr) {
 
     curr = firstid(tlptr->wQHead);
     while(q[curr].qkey != MAXINT) {
-        //kprintf("w\n");
         if(proctab[curr].pprio > high) {
             high = proctab[curr].pprio;
         }

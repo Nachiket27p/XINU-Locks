@@ -63,12 +63,47 @@ SYSCALL kill(int pid)
 		case PRWAIT:	semaph[pptr->psem].semcnt++;
 			// pa2
 			if(pptr->lBlocked) {
-				dequeue(pptr->lBlocked);
+				dequeue(pid);
+
+				// if the process being is the one with the highest priority
+				// than update the highest wait process priority for the lock
+				// also update the priority of all the processes currently
+				// holding this lock
+				if(locks[pptr->lBlocked].highPrio == pptr->pprio) {
+					struct lentry *lptr = &locks[pptr->lBlocked];
+					// check if the highest prioritu needs to be reset
+					newPrioHigh(lptr);
+					// update the priority of all the processes currently using this lock
+					// check if it holding a lock with inheirited priority
+					// for all processes holding this lock
+						// check all other locks its holding
+							// check the lptr->highPrio and change the priority accordingly
+					int k, x;
+					struct pentry *tpptr;
+					for(k = 0; k < NPROC; k++) {
+						if((lptr->pTracker >> k) & (u_llong)1) {
+							tpptr = &proctab[k];
+							if(lptr->highPrio == 0) {
+								tpptr->pprio = tpptr->pOrig;
+								tpptr->pOrig = 0;
+							} else {
+								tpptr->pprio = lptr->highPrio;
+							}
+
+							// not check if its inheriting from other locks its holding
+							for(x = 0; x < NLOCKS; x++) {
+								if(((tpptr->lHeld >> x) * (u_llong)1) && (locks[x].highPrio > tpptr->pprio)) {
+									tpptr->pprio = locks[x].highPrio;
+								}
+							}
+						}
+					}
+				}
 			}
-			// check if the highest prioritu needs to be reset
-			int rlk = lastkey(locks[pptr->lBlocked].rQTail);
-			int wlk = lastkey(locks[pptr->lBlocked].wQTail);
-			locks[pptr->lBlocked].highPrio = rlk > wlk ? rlk : wlk;
+			
+			// int rlk = lastkey(locks[pptr->lBlocked].rQTail);
+			// int wlk = lastkey(locks[pptr->lBlocked].wQTail);
+			// locks[pptr->lBlocked].highPrio = rlk > wlk ? rlk : wlk;
 			//pptr->lROrW = 0;
 			pptr->pOrig = 0;
 			pptr->lBlocked = -1;

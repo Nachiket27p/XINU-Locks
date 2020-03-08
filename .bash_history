@@ -251,3 +251,6 @@ cd
 git add -A
 git commit -m "fixed compilation error and moved typedef into systypes.h"
 git push origin master
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+exit

@@ -56,8 +56,8 @@ int lock(int loc, int type, int priority)
         } else {
             lptr->lWriters--;
             //kprintf("r cpid %d\n", currpid);
-            lptr->lTracker |= ((u_llong)1 << currpid);
-            //kprintf("w lT: %X\n", lptr->lTracker);
+            lptr->pTracker |= ((u_llong)1 << currpid);
+            //kprintf("w lT: %X\n", lptr->pTracker);
             pptr->lHeld |= ((u_llong)1 << loc);// set mask in pcb to indicate this process is holding the lock
             lptr->lState = WRITE;
         }
@@ -84,8 +84,8 @@ int lock(int loc, int type, int priority)
         } else {
             lptr->lReaders--;
             //kprintf("r cpid %d\n", currpid);
-            lptr->lTracker |= ((u_llong)1 << currpid);
-            //kprintf("r lT: %X\n", lptr->lTracker);
+            lptr->pTracker |= ((u_llong)1 << currpid);
+            //kprintf("r lT: %X\n", lptr->pTracker);
             pptr->lHeld |= ((u_llong)1 << loc);// set mask in pcb to indicate this process is holding the lock
             lptr->lState = READ;
         }
@@ -109,7 +109,7 @@ void prioInheritance(int cpid)
     // k starts from 1 because '0' would mean the null process is holding the lock
     // which is not possible
     for(k = 1; k < NPROC; k++) {
-        if(((tmplptr->lTracker >> k) & (u_llong)1) && (proctab[k].pprio < tmppptr->pprio)) {            
+        if(((tmplptr->pTracker >> k) & (u_llong)1) && (proctab[k].pprio < tmppptr->pprio)) {            
             //kprintf("%d\n", k);
             // save the original priority only if it has not been saved before
             if(proctab[k].pOrig == 0) {

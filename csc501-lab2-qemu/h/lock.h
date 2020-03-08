@@ -19,7 +19,7 @@ struct lentry {
     int wQHead;
     int wQTail;
     int highPrio;
-    u_llong lTracker;
+    u_llong pTracker;
 };
 
 extern struct lentry locks[];
@@ -35,4 +35,5 @@ int lock(int lock, int type, int priority);
 int releaseall(int numlocks, ...);
 
 void prioInheritance(int cpid);
+void newPrioHigh(struct lentry *tlptr);
 
