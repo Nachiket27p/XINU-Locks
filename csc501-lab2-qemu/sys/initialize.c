@@ -157,8 +157,12 @@ LOCAL int sysinit()
 	}
 	
 
-	for (i=0 ; i<NPROC ; i++)	/* initialize process table */
+	for (i=0 ; i<NPROC ; i++) {	/* initialize process table */
 		proctab[i].pstate = PRFREE;
+		//pa2
+		proctab[i].lBlocked = -1;
+		//pa2
+	}
 
 	pptr = &proctab[NULLPROC];	/* initialize null process entry */
 	pptr->pstate = PRCURR;

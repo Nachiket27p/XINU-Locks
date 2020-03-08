@@ -17,7 +17,7 @@ int releaseall(int numlocks, ...)
 
     // create array to store variable arguments
     int lockArgs[numlocks];
-    // use adres of 'numlocks' variable to obtain other arguments
+    // use address of 'numlocks' variable to obtain other arguments
     int args = 0;
     while(args < numlocks) {
         lockArgs[args] = *((&numlocks)+ args + 1);// save the stack variable argument
@@ -53,6 +53,9 @@ int releaseall(int numlocks, ...)
             continue;// skip to the next lock
         }
 
+        // remove the inheirted priority for this process
+        pptr->pinh = 0;
+
         // remove this lock from the lock's tracker by resetting the bit mask for the 
         // appropriate position.
         lptr->lTracker &= (!(1 << currpid));
@@ -86,12 +89,12 @@ int releaseall(int numlocks, ...)
                 ready(getlast(lptr->rQTail), RESCHNO);
                 rp = lastkey(lptr->rQTail);
             }
-            resched();
+            //resched();
         } else if ((wp > rp) && (lptr->lReaders == NPROC)) {// only give lock to writer if all readers releases the lock
             lptr->lState = WRITE;
             lptr->lWriters--;
             ready(getlast(lptr->wQTail), RESCHNO);
-            resched();
+            //resched();
         } else if (!rp && !rp) { // if waiting reader and writer has the same priority choose based on wait time
             // get amount of time writer/reader has been waiting for
             rwt = cTime - proctab[q[lptr->rQTail].qprev].lockTime[locarg];
@@ -112,7 +115,7 @@ int releaseall(int numlocks, ...)
                 lptr->lWriters--;
                 ready(getlast(lptr->wQTail), RESCHNO);
             }
-            resched();
+            //resched();
         }
         //}
     }

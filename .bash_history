@@ -234,3 +234,20 @@ git commit -m "declared extra variables in lentry struct and pcb struct for prio
 git push origin master
 cd csc501-lab2-qemu/compile/
 make depend && make && make run
+cd
+git add -A
+git commit -m "reimplemented how process keeps track of its locks and how locks track processes"
+git push origin master
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+cd ..
+cd sys/
+grep ? *
+cd ..
+cd compile/
+make depend && make && make run
+make clean
+cd
+git add -A
+git commit -m "fixed compilation error and moved typedef into systypes.h"
+git push origin master

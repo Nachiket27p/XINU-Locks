@@ -46,6 +46,7 @@ int lock(int loc, int type, int priority)
                 lptr->highPrio = pptr->pprio;
             // update the PCB of lock whose wait queue this process is waiting in
             pptr->lBlocked = loc;
+            //pptr->lRorW = WRITE;
             // check if the process currently holding the lock has a lower priority than
             // the one trying to acquire the lock at the moment
             prioInheritance(currpid);
@@ -68,12 +69,15 @@ int lock(int loc, int type, int priority)
                 lptr->highPrio = pptr->pprio;
             // update the PCB of lock whose wait queue this process is waiting in
             pptr->lBlocked = loc;
+            //pptr->lRorW = READ;
             // check if the process currently holding the lock has a lower priority than
             // the one trying to acquire the lock at the moment
             prioInheritance(currpid);
             // reschedule with the new process priority
             resched();
             // !!! This is where the process will return from resched !!!
+            // update the PCB to indicate that this process is not longer blocked by any lock
+            pptr->lBlocked = -1;
         } else {
             lptr->lTracker &= (1 << currpid);
             pptr->lHeld &= (1 << loc);// set mask in pcb to indicate this process is holding the lock

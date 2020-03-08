@@ -64,6 +64,7 @@ struct	pentry	{
 	int	ppagedev;		/* pageing dgram device		*/
 	int	pwaitret;
 	/* pa2 */
+	//int lROrW;
 	int pinh;
 	int lBlocked;
 	u_llong lDeleted;

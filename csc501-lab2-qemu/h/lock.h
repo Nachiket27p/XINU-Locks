@@ -34,3 +34,5 @@ int ldelete(int lock);
 int lock(int lock, int type, int priority);
 int releaseall(int numlocks, ...);
 
+void prioInheritance(int cpid);
+
