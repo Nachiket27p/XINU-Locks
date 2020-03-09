@@ -254,3 +254,26 @@ git push origin master
 cd csc501-lab2-qemu/compile/
 make depend && make && make run
 exit
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+cd
+git add -A
+git commit -m "completed implementation - Needs Testing"
+git push origin master
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+make depend && make
+make depend && make && make run
+cd
+clear
+git add -A
+git commit -m "passing test 1 & 2 but test 3 causes trap to XINU monitor"
+git push origin master
+cd csc501-lab2-qemu
+cd sys/
+grep dequeu *
+grep lTracker *
+cd
+git add -A
+git commit -m "passing all 3 tests"
+git push origin master

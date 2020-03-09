@@ -1,0 +1,83 @@
+1.)
+    a)  Priority ceiling protocol can be used. In this protocol every shared resource is given
+        a maximum priority, if a process acquires this resource and has a priority lower
+        than the resources max priority, the processe's priority is remporarilt increased
+        to this value. This ensures that any process using this resource is running with
+        a sufficiently high priority. When the process releases the resource its priority
+        is returned to the original value.
+    
+    b)  
+        // Start of output
+
+        Test Case to show priority inversion probelm & solution:
+        Shows the difference between no priority inheritance (semaphore)
+        and priority inheritance (readers & writers lock). In this test
+        there are three processes A, B, and C. A is the process which
+        is held up by B, which acquires the lock before it but has a lower
+        priority. Process C does not hold any lock but has a higher priority
+        than process B so it gets scheduled more than B. Process A starts a timer
+        when it first gets scheduler, than stops the timer when its finished. With
+        no priority inheritance we should see a longer time for the process to
+        complete compared to with priority inheritance.
+
+        >> No priority inheritance sub-test started.
+        >> Resume process B with priority = 16
+                Process B to acquire lock
+                Process B acquired lock, do some work
+        >> Resume process C with priority = 17
+                Process C is doing some work.
+        >> Resume process A with priority = 18
+        >> Waiting for processes to finish.
+                Process A to acquire lock, start timer
+                Process C has completed.
+                Process B to release lock
+                Process A acquired lock
+                Process A to release lock, stop timer
+        >> noPrioInh Completed
+
+
+        >> Priority inheritance sub-test started.
+        >> Resume process B with priority = 16
+                Process B to acquire lock
+                Process B acquired lock, do some work
+        >> Resume process C with priority = 17
+                Process C is doing some work.
+        >> Resume process A with priority = 18
+                Process A to acquire lock, start timer
+        >> Waiting for processes to finish.
+                Process B to release lock
+                Process A acquired lock
+                Process A to release lock, stop timer
+                Process C has completed.
+        >> PrioInh Completed
+
+        Time for Process A to complete without priority inheritance: 1556 ms
+        Time for Process A to complete with priority inheritance   : 1016 ms
+        
+        // End of output
+
+        As we can see the time for process A to complete is less with
+        priority inheritance because as we can see from the output process C
+        completes after process B with priority inheritance where as without
+        priority inheritance process C completes before process B. This is
+        because process with priority inheritance process B acquires the priority
+        process A which is higher than process C so it can finish first.
+
+2.) There are several problem with the code given in task2_sync_issue.c.
+
+        First, if there are multiple writer such that if process A, and B are
+        writers and process C is a reader. If A gets the resource lock than B tries
+        to get the resource lock, than C tries to get the lock. When A finishes the
+        signal(resource) call will wake up B which will overwrite the data written
+        in buffer.
+        
+        Second, if there are multiple readers ther is a possibility they will
+        read the same data from the buffer. For example if there are two reader
+        processes A, and B, and two writers Process C and D. If Process C acquires
+        the resource lock than process D tries to get the resource lock it has to
+        wait. Than before A calls signal(resource) process A acquires the rmutex lock
+        then waits for a signal for resource lock. In this time B tries to acquire
+        rmutex lock and has to wait. Now C calls signal(resource) which releases A,
+        then A calls signal(rmutex) which releases B now process A and B will read
+        the same content from the buffer before process D gets to put something new
+        into the buffer.
