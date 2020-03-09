@@ -184,6 +184,59 @@ void test3 ()
         kprintf ("Test 3 OK\n");
 }
 
+void writer4 (char *msg, int lck)
+{
+        kprintf ("  %s: to acquire lock\n", msg);
+        lock (lck, WRITE, DEFAULT_LOCK_PRIO);
+        kprintf ("  %s: acquired lock, sleep 10s\n", msg);
+        sleep (10);
+        kprintf ("  %s: to release lock\n", msg);
+        releaseall (1, lck);
+}
+
+void test4 ()
+{
+        int     lck;
+        int     w1, w2, w3;
+
+        kprintf("\nTest 4: test the priority inheritence when chprio() called\n");
+        lck  = lcreate ();
+        assert (lck != SYSERR, "Test 4 failed");
+
+        w1 = create(writer4, 2000, 20, "writer4", 2, "writer A", lck);
+        w2 = create(writer4, 2000, 25, "writer4", 2, "writer B", lck);
+        w3 = create(writer4, 2000, 30, "writer4", 2, "writer C", lck);
+
+        kprintf("-start writer, then sleep 1s. lock granted to write (prio 20)\n");
+        resume(w1);
+        sleep (1);
+
+        kprintf("-start reader A, then sleep 1s. reader A(prio 25) blocked on the lock\n");
+        resume(w2);
+        sleep (1);
+        //kprintf("%d",getprio(wr1));
+	assert (getprio(w1) == 25, "Test 4 failed 1");
+
+        kprintf("-start reader B, then sleep 1s. reader B(prio 30) blocked on the lock\n");
+        resume (w3);
+	sleep (1);
+	assert (getprio(w1) == 30, "Test 4 failed 2");
+        
+        // change the priority of the currently running process but nothing should change
+        // as it has an inherited priority
+        chprio(w1, 27);
+        assert (getprio(w1) == 30, "Test 4 failed 3");
+
+        // now change priority higher than inherited priority
+        chprio(w1, 35);
+        assert (getprio(w1) == 35, "Test 4 failed 4");
+
+        sleep (10);
+        kprintf ("Test 4 OK\n");
+}
+
+
+
 int main( )
 {
         /* These test cases are only used for test purposes.
@@ -193,6 +246,7 @@ int main( )
 	test1();
 	test2();
 	test3();
+        test4();
 
         /* The hook to shutdown QEMU for process-like execution of XINU.
          * This API call exists the QEMU process.

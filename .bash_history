@@ -277,3 +277,22 @@ cd
 git add -A
 git commit -m "passing all 3 tests"
 git push origin master
+cd csc501-lab2-qemu/sys/
+grep screate *
+cd
+cd csc501-lab2-qemu/compile/
+make depend
+make
+make depend && make
+make run
+make depend && make && make run
+make clean
+git add -A
+cd 
+git add -A
+git commit -m "created Lab2Answers.txt and task1.c"
+git push origin master
+cd csc501-lab2-qemu/sys/
+grep time *
+grep cock *
+grep clock *

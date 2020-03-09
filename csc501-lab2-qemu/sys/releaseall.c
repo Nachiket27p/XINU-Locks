@@ -153,13 +153,13 @@ int releaseall(int numlocks, ...)
     
     //pptr->pinh = nphigh;
 
-    // based on the highest priority in the wait queues of all the locks this process is holding
-    // update its priority
+    // based on the highest priority in the wait queues of all the locks this 
+    // process is holding update its priority
     if(pptr->pOrig < nphigh) {
         pptr->pprio = nphigh;
     }
     // If not than restore this processes original priority
-    else {
+    else if(pptr->pOrig) {
         pptr->pprio = pptr->pOrig;
         pptr->pOrig = 0;
     }

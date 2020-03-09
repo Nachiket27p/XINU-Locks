@@ -22,8 +22,24 @@ SYSCALL chprio(int pid, int newprio)
 		restore(ps);
 		return(SYSERR);
 	}
-	pptr->pprio = newprio;
+
 	// pa2
+	// if(pptr->pstate != PRSLEEP && pptr->pstate != PRSUSP && pptr->pstate != PRWAIT) {
+	if(pptr->pOrig) {
+		if(newprio < pptr->pprio) {
+			pptr->pOrig = newprio;
+		} else {
+			pptr->pprio = newprio;
+			pptr->pOrig = 0;
+		}
+	} else {
+		pptr->pprio = newprio;
+	}
+	// } else {
+	// 	kprintf("HERE");
+	// 	pptr->pprio = newprio;
+	// }
+	
 	if(pptr->pstate == PRWAIT && pptr->lBlocked &&
 				locks[pptr->lBlocked].highPrio < newprio) {
 		locks[pptr->lBlocked].highPrio = newprio;
