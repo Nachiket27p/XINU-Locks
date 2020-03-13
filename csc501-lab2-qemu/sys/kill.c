@@ -115,7 +115,7 @@ SYSCALL kill(int pid)
 			pptr->pstate = PRFREE;
 			// !!! TODO
 			for(templok = 0; templok < NLOCKS; templok++) {
-				if((pptr->lHeld >> templok) & 1) {
+				if((pptr->lHeld >> templok) & (u_llong)1) {
 					releaseall(1, templok);
 				}
 			}

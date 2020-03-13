@@ -6,10 +6,12 @@
 
 #define DEFAULT_LOCK_PRIO 20
 
-#define assert(x,error) if(!(x)){ \
-            kprintf(error);\
-            return;\
-            }
+#define assert(x,error) \
+    if(!(x)){ \
+        kprintf(error);\
+        return;\
+    }
+
 int mystrncmp(char* des,char* target,int n){
     int i;
     for (i=0;i<n;i++){
@@ -235,23 +237,91 @@ void test4 ()
         kprintf ("Test 4 OK\n");
 }
 
+void writer5a (char *msg, int lck)
+{
+        kprintf ("  %s: to acquire lock\n", msg);
+        lock (lck, WRITE, DEFAULT_LOCK_PRIO + 10);
+        kprintf ("  %s: acquired lock, sleep 1s\n", msg);
+        sleep(3);
+        kprintf ("  %s: to release lock\n", msg);
+        releaseall (1, lck);
+        ldelete(lck);
+            
+}
+
+void writer5b (char *msg, int lck, int *res)
+{
+        kprintf ("  %s: to acquire lock\n", msg);
+        int lres = lock (lck, WRITE, DEFAULT_LOCK_PRIO + 5);
+        if(lres != DELETED) {
+            kprintf ("  %s: acquired deleted lock, FAIL!\n", msg);
+            *res = 0;
+        } else  {
+            kprintf ("  %s: could not acquire deleted lock\n", msg);
+            *res = 1;
+        }
+}
+
+void writer5c (char *msg, int lck, int *res)
+{
+        kprintf ("  %s: to acquire lock\n", msg);
+        int lres = lock (lck, WRITE, DEFAULT_LOCK_PRIO);
+        if(lres != SYSERR) {
+            kprintf ("  %s: acquired deleted lock, FAIL!\n", msg);
+            *res = 0;
+        } else  {
+            kprintf ("  %s: could not acquire deleted lock\n", msg);
+            *res = 1;
+        }
+}
+
+void test5 ()
+{
+        int lck;
+        int w1, w2, w3;
+        int res, res1;
+
+        kprintf("\nTest 5: Test trying to acquire deleted lock\n");
+        lck  = lcreate ();
+        assert (lck != SYSERR, "Test 5 failed");
+
+        w1 = create(writer5a, 2000, 25, "writer5a", 2, "writer 5a", lck);
+        w2 = create(writer5b, 2000, 25, "writer5b", 3, "writer 5b", lck, &res);
+        w3 = create(writer5c, 2000, 25, "writer5c", 3, "writer 5c", lck, &res1);
+
+        kprintf("-start writer 5a, then sleep 1s\n");
+        resume(w1);
+        sleep(1);
+        kprintf("-start reader 5b, then sleep 1s (%d)\n", w2);
+        resume(w2);
+        sleep(1);
+
+        sleep (10);
+	    assert (res == 1, "Test 5 failed 1");
+
+        resume(w3);
+        assert (res1 == 1, "Test 5 failed 2");
+
+        kprintf ("Test 5 OK\n");
+}
 
 
 int main( )
 {
-        /* These test cases are only used for test purposes.
-         * The provided results do not guarantee your correctness.
-         * You need to read the PA2 instruction carefully.
-         */
+    /* These test cases are only used for test purposes.
+        * The provided results do not guarantee your correctness.
+        * You need to read the PA2 instruction carefully.
+        */
 	test1();
 	test2();
 	test3();
-        test4();
+    test4();
+    test5();
 
-        /* The hook to shutdown QEMU for process-like execution of XINU.
-         * This API call exists the QEMU process.
-         */
-        shutdown();
+    /* The hook to shutdown QEMU for process-like execution of XINU.
+        * This API call exists the QEMU process.
+        */
+    shutdown();
 }
 
 

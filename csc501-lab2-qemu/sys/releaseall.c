@@ -9,7 +9,7 @@
 
 void newPrioHigh(struct lentry *tlptr);
 
-int releaseall(int numlocks, ...)
+SYSCALL releaseall(int numlocks, ...)
 {
     STATWORD ps;
 	register struct	lentry	*lptr;
@@ -38,6 +38,7 @@ int releaseall(int numlocks, ...)
     unsigned int cTime;
     int locarg;
     pptr = &proctab[currpid];
+    int tpid;
     for(args = 0; args < numlocks; args++) {
         // get the lock descriptor
         locarg = lockArgs[args];
@@ -88,7 +89,8 @@ int releaseall(int numlocks, ...)
             // priosity than the highest writer process to access the lock
             while((q[lptr->rQTail].qprev < NPROC) && (rp > wp)) {
                 lptr->lReaders--;
-                ready(getlast(lptr->rQTail), RESCHNO);
+                ready(tpid = getlast(lptr->rQTail), RESCHNO);
+                lptr->pTracker |= (u_llong)1 << tpid;
                 rp = lastkey(lptr->rQTail);
             }
             // recalculate new high priority for this lock
@@ -101,10 +103,12 @@ int releaseall(int numlocks, ...)
             lptr->lWriters--;
             // remove the process from the wait queue, change its priority if
             // ther is a process with a higher process priority waiting in the queues.
-            int rpid = getlast(lptr->wQTail);
-            proctab[rpid].pOrig = proctab[rpid].pprio;
-            proctab[rpid].pprio = lptr->highPrio;
-            ready(rpid, RESCHNO);
+            tpid = getlast(lptr->wQTail);
+            proctab[tpid].pOrig = proctab[tpid].pprio;
+            proctab[tpid].pprio = lptr->highPrio;
+            ready(tpid, RESCHNO);
+            // kprintf("relall %d %d\n",tpid, locarg);
+            lptr->pTracker |= (u_llong)1 << tpid;
             // recalculate new high priority for this lock
             newPrioHigh(lptr);
             //resched();
@@ -124,11 +128,13 @@ int releaseall(int numlocks, ...)
             if((rwt > wwt) && ((wwt - rwt) < 400)) {
                 lptr->lState = READ;
                 lptr->lReaders--;
-                ready(getlast(lptr->rQTail), RESCHNO);
+                ready(tpid = getlast(lptr->rQTail), RESCHNO);
+                lptr->pTracker |= (u_llong)1 << tpid;
             } else {
                 lptr->lState = WRITE;
                 lptr->lWriters--;
-                ready(getlast(lptr->wQTail), RESCHNO);
+                ready(tpid = getlast(lptr->wQTail), RESCHNO);
+                lptr->pTracker |= (u_llong)1 << tpid;
             }
             // recalculate new high priority for this lock
             newPrioHigh(lptr);

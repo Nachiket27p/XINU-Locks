@@ -296,3 +296,17 @@ cd csc501-lab2-qemu/sys/
 grep time *
 grep cock *
 grep clock *
+cd csc501-lab2-qemu
+cd sys/
+grep PRSUSP *
+grep PRSLEEP *
+grep PRTRECV *
+grep dequeue *
+grep PRRECV*
+grep PRRECV *
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+make clean
+git add -A
+git commit -m "implemented the effect of chrio() on processes associated with locks and tested it"
+git push origin master

@@ -9,7 +9,7 @@
 
 void prioInheritance();
 
-int lock(int loc, int type, int priority)
+SYSCALL lock(int loc, int type, int priority)
 {
     // If invalid lock type return SYSERR
     if(type != WRITE && type != READ)
@@ -51,14 +51,14 @@ int lock(int loc, int type, int priority)
             // the one trying to acquire the lock at the moment
             prioInheritance(currpid);
             // reschedule with the new process priority
+            //kprintf("lock: %d\n", currpid);
             resched();
             // !!! This is where the process will return from resched !!!
+            //kprintf("return from the dead: %d\n", currpid);
         } else {
             lptr->lWriters--;
-            //kprintf("r cpid %d\n", currpid);
-            lptr->pTracker |= ((u_llong)1 << currpid);
-            //kprintf("w lT: %X\n", lptr->pTracker);
-            pptr->lHeld |= ((u_llong)1 << loc);// set mask in pcb to indicate this process is holding the lock
+            lptr->pTracker |= (u_llong)1 << currpid;
+            pptr->lHeld |= (u_llong)1 << loc;// set mask in pcb to indicate this process is holding the lock
             lptr->lState = WRITE;
         }
     } else { // read lock
@@ -84,9 +84,9 @@ int lock(int loc, int type, int priority)
         } else {
             lptr->lReaders--;
             //kprintf("r cpid %d\n", currpid);
-            lptr->pTracker |= ((u_llong)1 << currpid);
+            lptr->pTracker |= (u_llong)1 << currpid;
             //kprintf("r lT: %X\n", lptr->pTracker);
-            pptr->lHeld |= ((u_llong)1 << loc);// set mask in pcb to indicate this process is holding the lock
+            pptr->lHeld |= (u_llong)1 << loc;// set mask in pcb to indicate this process is holding the lock
             lptr->lState = READ;
         }
     }

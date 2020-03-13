@@ -7,7 +7,7 @@
 
 LOCAL int newLock();
 
-int lcreate()
+SYSCALL lcreate()
 {
     STATWORD ps;    
 	int	loc;
