@@ -33,12 +33,10 @@ SYSCALL lock(int loc, int type, int priority)
         return(SYSERR);
     }
 
-    u_long currTime = ctr1000;
-
     if(type == WRITE) { // write lock
         //lptr->lWriters--;
         if(lptr->lState == WRITE || lptr->lState == READ) {
-            pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
+            pptr->lockTime = ctr1000; //record the time this process tries to acquire the lock
             insert(currpid, lptr->wQHead, priority);
             pptr->pstate = PRWAIT;
             // keep track of the highest priority process waiting in the queue
@@ -55,6 +53,8 @@ SYSCALL lock(int loc, int type, int priority)
             resched();
             // !!! This is where the process will return from resched !!!
             //kprintf("return from the dead: %d\n", currpid);
+            // update the PCB to indicate that this process is not longer blocked by any lock
+            pptr->lBlocked = -1;
         } else {
             lptr->lWriters--;
             lptr->pTracker |= (u_llong)1 << currpid;
@@ -64,7 +64,7 @@ SYSCALL lock(int loc, int type, int priority)
     } else { // read lock
         //lptr->lReaders--;
         if(lptr->lState == WRITE || (lptr->lState == READ && lastkey(lptr->wQTail) >= priority)) {
-            pptr->lockTime[loc] = currTime; //record the time this process tries to acquire the lock
+            pptr->lockTime = ctr1000; //record the time this process tries to acquire the lock
             insert(currpid, lptr->rQHead, priority);
             pptr->pstate = PRWAIT;
             // keep track of the highest priority process waiting in the queue

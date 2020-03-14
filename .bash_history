@@ -310,3 +310,40 @@ make clean
 git add -A
 git commit -m "implemented the effect of chrio() on processes associated with locks and tested it"
 git push origin master
+cd csc501-lab2-qemu/compile/
+make depend && make && make run
+cd
+tar czf csc501-lab2.tgz csc501-lab2-qemu
+git add -A
+git commit -m "created submission tgz file"
+git push origin master
+cd csc501-lab2-qemu/sys/
+grep << *
+q
+
+grep '<<' *
+grep '>>' *
+clear
+cd ..
+cd compile/
+make clean
+cd
+clear
+git add -A
+git commit -m "created test for deleted locks, fixed bugs related deleted locks"
+git push master origin
+git push origin master
+cd csc501-lab2
+ls
+cd csc501-lab2-qemu/compile/
+clear
+make depend && make && make run
+cd csc501-lab2-qemu/sys/
+grep lockTime *
+clear
+cs
+ccd
+cd
+cd csc501-lab2-qemu/compile/
+clear
+make depend && make && make run

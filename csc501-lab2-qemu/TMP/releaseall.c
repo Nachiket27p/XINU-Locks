@@ -34,12 +34,13 @@ SYSCALL releaseall(int numlocks, ...)
     char locStat;
     int rp = 0;
     int wp = 0;
-    int rwt, wwt;
-    unsigned int cTime;
+    unsigned long rwt, wwt;
     int locarg;
     pptr = &proctab[currpid];
     int tpid;
     for(args = 0; args < numlocks; args++) {
+        rp = 0;
+        wp = 0;
         // get the lock descriptor
         locarg = lockArgs[args];
         // get the pointer to the lock
@@ -49,9 +50,12 @@ SYSCALL releaseall(int numlocks, ...)
         
         if(locStat == READ) {
             lptr->lReaders++;
-            //kprintf("\n#r: %d\n", lptr->lReaders);
+            if(lptr->lReaders == NPROC) {
+                lptr->lState = LFREE;
+            }
         } else if(locStat == WRITE) {
             lptr->lWriters++;
+            lptr->lState = LFREE;
         } else {
             relRtn = SYSERR;
             continue;// skip to the next lock
@@ -67,22 +71,19 @@ SYSCALL releaseall(int numlocks, ...)
         //update tracker to indicate the lock is no longer used by this process
         pptr->lHeld &= (!((u_llong)1 << locarg));
         
-        // get the current time
-        cTime = ctr1000;
         // if ther is a process waiting to acquire the lock a reader or a writer
         // put that process into the ready queue.
         /* CRITERIA FOR RELEASING PROCESS
             > Lock should be given to the process which has the highest priosity
             > If a reader and a writer have the same priosity:
                 # Award the process which has been waiting waiting the longest
-                    uese the lockTime[] in the PCB of the process to determine this
+                    gets the lockTime in the PCB of the process to determine this
         */
         if(nonempty(lptr->rQHead))
             rp = lastkey(lptr->rQTail);
         if(nonempty(lptr->wQHead))
             wp = lastkey(lptr->wQTail);
 
-        //kprintf("\nTR: %d    TW: %d\n", rp, wp);
         if(rp > wp) {
             lptr->lState = READ;
             // is a reader given the lock let all other readers that have a higher
@@ -99,11 +100,16 @@ SYSCALL releaseall(int numlocks, ...)
         }
         // only give lock to writer if all readers releases the lock
         else if ((wp > rp) && (lptr->lReaders == NPROC)) {
+
+            //kprintf("\nTR: %d    TW: %d\n", rp, wp);
             lptr->lState = WRITE;
             lptr->lWriters--;
             // remove the process from the wait queue, change its priority if
             // ther is a process with a higher process priority waiting in the queues.
             tpid = getlast(lptr->wQTail);
+
+            //kprintf("\nhp: %d \n", lptr->highPrio);
+
             proctab[tpid].pOrig = proctab[tpid].pprio;
             proctab[tpid].pprio = lptr->highPrio;
             ready(tpid, RESCHNO);
@@ -116,16 +122,16 @@ SYSCALL releaseall(int numlocks, ...)
         // if waiting reader and writer has the same priority choose based on wait time
         else if (rp != 0 && wp != 0 && rp == wp) {
             // get amount of time writer/reader has been waiting for
-            rwt = cTime - proctab[q[lptr->rQTail].qprev].lockTime[locarg];
-            wwt = cTime - proctab[q[lptr->wQTail].qprev].lockTime[locarg];
+            rwt = ctr1000 - proctab[q[(lptr->rQTail)].qprev].lockTime;
+            wwt = ctr1000 - proctab[q[(lptr->wQTail)].qprev].lockTime;
             
             // give lock to reader if reader has been waiting for longer than
             // writer, additionaly if ther writer has been waiting for less than
             // 0.4s longer than the reader. Give lock to reader.
             // example:
-            //          rt = 5000; wt = 5300
-            //          (wt-rt = 300) < 400    ----> so reader gets lock
-            if((rwt > wwt) && ((wwt - rwt) < 400)) {
+            //          rt = 500; wt = 530
+            //          (wt-rt = 30) <= 40    ----> so reader gets lock
+            if((wwt - rwt) <= 40) {
                 lptr->lState = READ;
                 lptr->lReaders--;
                 ready(tpid = getlast(lptr->rQTail), RESCHNO);

@@ -69,7 +69,7 @@ struct	pentry	{
 	int lBlocked;
 	u_llong lDeleted;
 	u_llong lHeld;
-	u_long lockTime[NLOCKS]; // keeps track of when the lock was acquired
+	u_long lockTime; // keeps track of when the lock was acquired
 	/* pa2 */
 };
 
